@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f6b52">
+<title>잇다 홈</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Black+Han+Sans&display=swap">
+<style>
+/* Layout: 데스크톱은 휴대폰 프레임 + 옆 안내 패널, 휴대폰 폭에서는 앱만 꽉 차게 */
+:root{
+  --bg:#e9ece8; --surface:#ffffff; --surface-2:#f3f5f2; --ink:#18221d; --muted:#5f6b64; --line:#dde2dc;
+  --accent:#1f6b4f; --accent-soft:#dcefe5; --baton:#e8a417; --baton-soft:#fbefd2;
+  --warn:#b4541c; --warn-soft:#f8e3d6; --ok:#2a7d4f;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-logo:"Black Han Sans","IBM Plex Sans KR",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101512; --surface:#18201b; --surface-2:#202a24; --ink:#e8eee9; --muted:#9aa89f; --line:#2c3730;
+  --accent:#5cc395; --accent-soft:#1d3a2c; --baton:#f0b83a; --baton-soft:#3a2f14;
+  --warn:#f08a52; --warn-soft:#3f2416; --ok:#6fd39a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101512; --surface:#18201b; --surface-2:#202a24; --ink:#e8eee9; --muted:#9aa89f; --line:#2c3730;
+  --accent:#5cc395; --accent-soft:#1d3a2c; --baton:#f0b83a; --baton-soft:#3a2f14;
+  --warn:#f08a52; --warn-soft:#3f2416; --ok:#6fd39a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{display:flex;gap:32px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+.side{max-width:320px;min-width:0;display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.side h1{font-family:var(--f-logo);font-weight:400;font-size:34px;margin:0;letter-spacing:.5px}
+.side p{margin:0;color:var(--muted)}
+.rolebox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.rolebox .lbl{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:10px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:8px;padding:10px 6px;font-weight:600;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--accent)}
+.screens{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.screens button{border:0;background:none;text-align:left;padding:5px 6px;border-radius:6px;color:var(--muted);display:flex;gap:8px}
+.screens button:hover{background:var(--surface-2);color:var(--ink)}
+.screens code{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--accent);min-width:34px}
+.phone{width:390px;max-width:100%;height:800px;max-height:calc(100vh - 48px);min-height:620px;background:var(--surface);border-radius:36px;border:10px solid #111;
+  box-shadow:0 20px 50px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+.mobile-role{display:none;padding:8px max(16px,env(safe-area-inset-left,0px)) 0;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.mobile-role .seg{flex:1}
+.mobile-role .seg button{padding:6px}
+.status{display:flex;justify-content:space-between;padding:10px 22px 4px;font-size:12px;font-weight:600}
+.top{display:flex;align-items:center;gap:8px;padding:6px 16px 10px;border-bottom:1px solid var(--line)}
+.top h2{font-size:17px;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .back{border:0;background:none;font-size:22px;line-height:1;padding:2px 6px}
+.top .sid{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:1px 5px}
+.logo{font-family:var(--f-logo);font-size:22px;color:var(--accent);letter-spacing:.5px}
+.body{flex:1;overflow-y:auto;padding:14px 16px 20px;display:flex;flex-direction:column;gap:14px}
+.tabs{display:grid;border-top:1px solid var(--line);background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs button{border:0;background:none;padding:8px 2px 10px;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+.tabs button[aria-current="page"]{color:var(--accent);font-weight:600}
+.tabs svg{width:22px;height:22px}
+.dot{position:absolute;top:5px;right:calc(50% - 16px);min-width:16px;height:16px;border-radius:8px;background:var(--warn);color:#fff;font-size:10px;line-height:16px;padding:0 4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.card.flat{background:var(--surface-2);border-color:transparent}
+.row{display:flex;align-items:center;gap:10px}
+.row .grow{flex:1;min-width:0}
+.h{font-weight:700;font-size:16px;margin:0}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.eyebrow{font-size:11px;letter-spacing:.08em;font-weight:700;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.chip.ok{background:var(--accent-soft);color:var(--accent)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.baton{background:var(--baton-soft);color:#8a5d00}
+:root[data-theme="dark"] .chip.baton{color:var(--baton)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip.baton{color:var(--baton)}}
+.btn{border:0;border-radius:12px;padding:13px 16px;font-weight:700;background:var(--accent);color:#fff;width:100%}
+:root[data-theme="dark"] .btn{color:#0d1a13}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn{color:#0d1a13}}
+.btn.ghost{background:var(--surface-2);color:var(--ink)}
+.btn.small{width:auto;padding:8px 12px;font-size:13px;border-radius:10px}
+.btn.warn{background:var(--warn)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.ad{display:flex;gap:10px;align-items:center;background:var(--baton-soft);border-radius:12px;padding:10px 12px;font-size:13px}
+.ad .tag{font-size:10px;border:1px solid currentColor;border-radius:4px;padding:0 4px;color:var(--muted)}
+.ad .x{border:0;background:none;color:var(--muted);font-size:16px}
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:start;padding:6px 0;position:relative}
+.step .b{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:11px;font-weight:700;z-index:1}
+.step.done .b{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.step.now .b{border-color:var(--baton);background:var(--baton-soft)}
+.step:not(:last-child)::before{content:"";position:absolute;left:10px;top:28px;bottom:-6px;width:2px;background:var(--line)}
+.step.done:not(:last-child)::before{background:var(--accent)}
+.step .t{font-size:14px;font-weight:600}
+.step .d{font-size:12px;color:var(--muted)}
+.bar{height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .3s}
+.ph{border-radius:10px;position:relative;overflow:hidden;background:var(--surface-2);display:flex;align-items:flex-end;color:#fff;font-size:11px;font-weight:600;flex-shrink:0}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ph span{position:relative;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.55));width:100%;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+.ph.thumb{width:56px;height:56px}
+.ph.thumb span{display:none}
+.ph.big{width:100%;aspect-ratio:4/3;max-width:100%}
+.ph.mid{width:100%;aspect-ratio:1/1}
+.stamp{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--muted)}
+.list{display:flex;flex-direction:column}
+.li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
+.li:last-child{border-bottom:0}
+.room{font-size:12px;font-weight:700;color:var(--muted);margin:6px 0 -4px}
+textarea,input[type=text],input[type=date]{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px;font:inherit;font-size:14px}
+textarea{min-height:76px;resize:vertical}
+.req{border-left:3px solid var(--warn);background:var(--warn-soft);border-radius:0 10px 10px 0;padding:8px 10px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.req.done{border-color:var(--accent);background:var(--accent-soft)}
+.chat{display:flex;flex-direction:column;gap:8px}
+.msg{max-width:78%;padding:9px 12px;border-radius:16px;font-size:14px;background:var(--surface-2);align-self:flex-start}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--surface)}
+.msg .who{font-size:11px;color:var(--muted);margin-bottom:2px}
+.msg.me .who{display:none}
+.msg.sys{align-self:center;background:transparent;color:var(--muted);font-size:12px;text-align:center;max-width:100%}
+.msg.card-msg{background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.composer{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--line)}
+.composer input{flex:1;min-width:0}
+.sigpad{border:1.5px dashed var(--line);border-radius:12px;background:var(--surface-2);touch-action:none;width:100%;height:120px;display:block}
+.sigbox{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sigbox .s{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:96px}
+.sigbox .s.ok{border-color:var(--accent);background:var(--accent-soft)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cmp .lab{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.stars{color:var(--baton);letter-spacing:1px}
+.starpick{display:flex;gap:4px}
+.starpick button{border:0;background:none;font-size:28px;color:var(--line);padding:0}
+.starpick button.on{color:var(--baton)}
+.unit{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:left;width:100%}
+.unit .no{font-weight:700;font-size:15px;background:var(--surface-2);border-radius:10px;height:52px;display:grid;place-items:center}
+.unit.locked{opacity:.55}
+.plan{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.plan.pick{border:2px solid var(--accent)}
+.plan .price{font-size:22px;font-weight:700}
+.plan ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted)}
+.toast{position:absolute;left:16px;right:16px;bottom:76px;background:var(--ink);color:var(--surface);padding:11px 14px;border-radius:12px;font-size:13px;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;z-index:5}
+.toast.show{opacity:1;transform:none}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.kv dt{color:var(--muted)}.kv dd{margin:0}
+.radio{display:flex;flex-wrap:wrap;gap:6px}
+.radio button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:13px}
+.radio button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.note{font-size:12px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 10px}
+@media (max-width:760px){
+  body{padding-block:0;padding-left:0;padding-right:0}
+  .side{display:none}
+  /* 휴대폰에서는 가짜 프레임 없이 일반 페이지처럼 스크롤 (앱 뷰어의 높이 계산과 충돌하지 않게) */
+  .phone{width:100%;border:0;border-radius:0;height:auto;min-height:100vh;min-height:100dvh;max-height:none;box-shadow:none;overflow:visible}
+  .status{display:none}
+  .mobile-role{display:flex!important;padding-top:10px}
+  .top{position:sticky;top:env(safe-area-inset-top,0px);background:var(--surface);z-index:4;padding-top:10px}
+  .body{overflow:visible;flex:1 0 auto;padding-bottom:24px}
+  #composer{position:sticky;bottom:62px;background:var(--surface);z-index:4}
+  .tabs{position:sticky;bottom:0;z-index:4}
+  .toast{position:fixed;bottom:84px}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+  body{background:var(--surface)}
+}
+.ob-hero{display:flex;flex-direction:column;gap:10px;padding:36px 4px 12px}
+.ob-hero .big{font-family:var(--f-logo);font-size:46px;color:var(--accent);line-height:1}
+.ob-hero p{margin:0}
+.ob-art{height:150px;border-radius:18px;background:linear-gradient(135deg,var(--accent-soft),var(--baton-soft));position:relative;overflow:hidden}
+.ob-art i{position:absolute;bottom:0;background:var(--surface);border:2px solid var(--accent);border-bottom:0;border-radius:6px 6px 0 0}
+.ob-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.ob-steps i{height:4px;border-radius:2px;background:var(--line)}
+.ob-steps i.on{background:var(--accent)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field>label{font-size:13px;font-weight:600}
+.field .hint{font-size:12px;color:var(--muted)}
+.field .err{font-size:12px;color:var(--warn)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.two>*{min-width:0}
+input[type=email],input[type=password],input[type=tel],input[type=number]{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px;font:inherit;font-size:14px}
+.inline{display:flex;gap:8px}.inline input{flex:1;min-width:0}
+.check{display:flex;gap:8px;align-items:center;font-size:14px}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.rolecard{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:18px 16px;border:2px solid var(--line);border-radius:16px;background:var(--surface)}
+.rolecard[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.rolecard .ic{width:52px;height:52px;border-radius:14px;background:var(--surface-2);display:grid;place-items:center;flex-shrink:0;color:var(--accent)}
+.rolecard .ic svg{width:28px;height:28px}
+.unitchips{display:flex;flex-wrap:wrap;gap:6px}
+.unitchips span{display:inline-flex;gap:6px;align-items:center;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:5px 6px 5px 12px;font-weight:600;font-size:13px}
+.unitchips button{border:0;background:none;color:inherit;font-size:15px;line-height:1;padding:0 4px}
+.acct{font-size:14px}
+[hidden]{display:none!important}
+.top .sid{display:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="phone" id="phone">
+    <div class="status"><span>9:41</span><span>LTE 100%</span></div>
+    
+    <div class="top" id="top"></div>
+    <div class="body" id="body"></div>
+    <div id="composer"></div>
+    <nav class="tabs" id="tabs"></nav>
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+const ICON={
+ home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+ record:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>',
+ repair:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>',
+ chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+ star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>',
+ units:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 7h2M14 7h2M8 11h2M14 11h2M8 15h2M14 15h2"/></svg>',
+ plan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>'
+};
+const HUES={wall:'#b9b3a6',floor:'#a77b55',tile:'#9fb7bf',wood:'#8a6648',white:'#c9cdc8',metal:'#8d969b',glass:'#90a9b8',dark:'#5f6660'};
+function phHTML(p,cls){
+  if(!p) return `<div class="ph ${cls}" style="background:var(--surface-2)"><span style="color:var(--muted);background:none;text-shadow:none">사진 없음</span></div>`;
+  if(p.src) return `<div class="ph ${cls}"><img src="${p.src}" alt="${p.label}"><span>${p.label}</span></div>`;
+  const c=HUES[p.tone]||HUES.wall;
+  const mark=p.mark?`<i style="position:absolute;left:${p.mark[0]}%;top:${p.mark[1]}%;width:${p.mark[2]}%;height:${p.mark[2]*.35}%;background:rgba(40,30,20,.55);border-radius:40%;transform:rotate(-12deg)"></i>`:'';
+  return `<div class="ph ${cls}" style="background:linear-gradient(160deg,${c} 0%,${shade(c,-18)} 100%)">${mark}<span>${p.label}</span></div>`;
+}
+function shade(hex,amt){const n=parseInt(hex.slice(1),16);let r=(n>>16)+amt,g=(n>>8&255)+amt,b=(n&255)+amt;r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0')}
+const NAMES={tenant:'김학생',landlord:'나주인'};
+
+/* ---------- 예시 데이터 ---------- */
+const S={
+ role:'tenant', screen:'home', stack:[], adOpen:true,
+ schedule:{proposed:['11월 1일 (토) 오전 10시','11월 2일 (일) 오후 2시'],agreed:'11월 2일 (일) 오후 2시'},
+ items:[
+  {id:'i1',room:'현관',name:'현관문 · 도어락',photos:[{tone:'metal',label:'현관문 안쪽'}],note:'도어락 비밀번호 변경 완료. 문 하단 긁힘 2cm 정도 있음.',by:'tenant',done:true,req:[],out:{photo:{tone:'metal',label:'현관문 안쪽 (퇴실)'},same:true}},
+  {id:'i2',room:'거실',name:'벽지',photos:[{tone:'wall',label:'거실 남쪽 벽',mark:[58,40,10]}],note:'TV 뒤쪽 벽에 못 자국 3개. 입주 전부터 있었음을 두 사람이 확인.',by:'landlord',done:true,req:[],out:{photo:{tone:'wall',label:'거실 남쪽 벽 (퇴실)',mark:[58,40,10]},same:true}},
+  {id:'i3',room:'거실',name:'바닥 · 마루',photos:[{tone:'floor',label:'거실 마루 창가 쪽'}],note:'창가 쪽 마루 들뜸 없음.',by:'tenant',done:true,req:[{from:'landlord',text:'창가 쪽 마루를 가까이서 한 장 더 찍어주세요. 햇빛 변색 여부 확인하고 싶어요.',done:false}],out:{photo:{tone:'floor',label:'거실 마루 (퇴실)',mark:[30,55,18]},same:false,note:'창가 쪽 마루에 얼룩(약 15cm). 화분 받침 물 자국으로 보임.',agreed:null}},
+  {id:'i4',room:'주방',name:'싱크대 · 수전',photos:[{tone:'metal',label:'싱크대 하부장'}],note:'하부장 문 경첩 약간 헐거움.',by:'tenant',done:true,req:[],out:{photo:{tone:'metal',label:'싱크대 (퇴실)'},same:true}},
+  {id:'i5',room:'주방',name:'가스레인지 · 후드',photos:[],note:'',by:null,done:false,req:[],out:{photo:{tone:'dark',label:'가스레인지 (퇴실)'},same:true}},
+  {id:'i6',room:'욕실',name:'실리콘 · 타일',photos:[{tone:'tile',label:'욕조 실리콘',mark:[20,70,22]}],note:'욕조 모서리 실리콘 곰팡이 일부. 임대인이 입주 후 2주 안에 재시공하기로 함.',by:'landlord',done:true,req:[],out:{photo:{tone:'tile',label:'욕조 실리콘 (퇴실)'},same:false,note:'실리콘 재시공 완료 상태 유지. 입주 때보다 깨끗함.',agreed:true}},
+  {id:'i7',room:'욕실',name:'환풍기 · 배수구',photos:[],note:'',by:null,done:false,req:[],out:{photo:{tone:'white',label:'환풍기 (퇴실)'},same:true}},
+  {id:'i8',room:'방',name:'창문 · 방충망',photos:[{tone:'glass',label:'안방 창문'}],note:'방충망 오른쪽 아래 구멍(손톱 크기).',by:'tenant',done:true,req:[],out:{photo:{tone:'glass',label:'안방 창문 (퇴실)'},same:true}},
+ ],
+ sign:{tenant:false,landlord:true},
+ chat:[
+  {sys:true,text:'11월 2일 (일) 오후 2시, 함께 기록하기로 정했어요'},
+  {from:'landlord',text:'서연 씨, 일요일 2시에 뵐게요. 욕실 실리콘은 그때 같이 보고 날짜 정합시다.'},
+  {from:'tenant',text:'네 좋아요. 현관부터 같이 찍으면 될까요?'},
+  {from:'landlord',type:'req',item:'i3',text:'창가 쪽 마루를 가까이서 한 장 더 찍어주세요.'},
+ ],
+ repairs:[
+  {id:'r1',title:'보일러 온수 온도가 안 올라가요',cat:'보일러',when:'10월 24일',status:'일정 확정',schedule:'10월 30일 (목) 오전 10시',vendor:'린나이 공식 서비스',photo:{tone:'white',label:'보일러 에러 E-03'},desc:'온수를 틀면 미지근한 물만 나오고 에러 코드 E-03이 떠요.',decision:'임대인 부담 수리',log:[{who:'tenant',t:'10.24 21:10',text:'사진과 함께 접수했어요.'},{who:'landlord',t:'10.25 09:02',text:'확인했어요. 노후 부품이라 제가 부담할게요.'},{who:'landlord',t:'10.25 09:30',text:'기사님 방문 10월 30일 오전 10시로 잡았어요.'}]},
+  {id:'r2',title:'안방 방충망 찢어짐',cat:'창호',when:'10월 12일',status:'수리 완료',schedule:'10월 15일',vendor:'세입자 직접 교체',photo:{tone:'glass',label:'방충망 손상'},desc:'고양이가 긁어서 찢어졌어요. 제가 교체할게요.',decision:'세입자 부담',log:[{who:'tenant',t:'10.12',text:'제 과실이라 직접 교체하겠습니다.'},{who:'landlord',t:'10.12',text:'알려줘서 고마워요. 교체 후 사진만 남겨주세요.'},{who:'tenant',t:'10.15',text:'교체 완료 사진 올렸어요.'}]},
+ ],
+ newRepair:{cat:'수전',desc:'',decision:null},
+ reviews:{
+  landlord:{avg:4.8,n:12,list:[{who:'이전 세입자 · 2024–2026',s:5,text:'수리 요청하면 다음 날 바로 답이 왔어요. 퇴실 정산도 기록 보고 10분 만에 끝남.'},{who:'세입자 · 2023–2025',s:5,text:'보증금 반환이 계약 종료일 당일에 됐어요.'},{who:'세입자 · 2022–2024',s:4,text:'연락은 빠른데 주말엔 답이 늦어요.'}]},
+  tenant:{avg:4.9,n:2,list:[{who:'임대인 · 2023–2025',s:5,text:'퇴실할 때 집을 입주 때보다 깨끗하게 해두셨어요. 하자도 바로바로 알려주심.'},{who:'임대인 · 2021–2023',s:5,text:'소통이 정확하고 기록을 꼼꼼히 남겨요.'}]}
+ },
+ myReview:{s:0,text:'',sent:false},
+ units:[
+  {no:'302',who:'김서연',state:'서명 대기',tone:'baton',sub:'입주 기록 6/8 · 보충 요청 1건',open:true},
+  {no:'201',who:'공실',state:'공실',tone:'',sub:'다음 세입자 입주 때 새로 함께 기록해요'},
+  {no:'401',who:'최민규',state:'퇴실 비교',tone:'warn',sub:'변화 2건 · 합의 1건',},
+  {no:'101',who:'오지훈',state:'거주 중',tone:'ok',sub:'수리 요청 0건 · 계약 만료 2027.03'},
+ ],
+ plan:'free',
+};
+
+/* ---------- 화면 정의 ---------- */
+const SCREENS={
+ tenant:[
+  ['home','T-01','홈'],['schedule','T-02','함께 기록할 날짜 정하기'],['record','T-03','입주 기록 체크리스트'],['item','T-04','항목 상세 · 사진/글/보충 요청'],
+  ['sign','T-05','함께 서명'],['repairs','T-06','수리 요청 목록'],['repairNew','T-07','수리 요청 등록'],['repair','T-08','수리 요청 상세'],
+  ['chat','T-09','대화'],['compare','T-10','퇴실 비교'],['profile','T-11','상대 평가 보기'],['review','T-12','평가 남기기'],['prev','T-13','이전 세입자 사진 보기']
+ ],
+ landlord:[
+  ['units','L-01','내 집들 (다세대 관리)'],['record','L-02','302호 입주 기록'],['item','L-03','항목 상세 · 보충 요청 보내기'],['sign','L-04','함께 서명'],
+  ['repairs','L-05','수리 요청 목록'],['repair','L-06','수리 요청 상세 · 처리 결정'],['chat','L-07','대화'],['compare','L-08','퇴실 비교'],
+  ['profile','L-09','세입자 평가 보기'],['review','L-10','별점 · 코멘트 남기기'],['plans','L-11','요금제 · 구독']
+ ]
+};
+const TABS={
+ tenant:[['home','홈','home'],['record','집 기록','record'],['repairs','수리','repair'],['chat','대화','chat'],['profile','평가','star']],
+ landlord:[['units','내 집들','units'],['repairs','수리','repair'],['chat','대화','chat'],['profile','평가','star'],['plans','요금제','plan']]
+};
+let curItem='i3', curRepair='r1';
+
+const OB=[['ob-welcome','O-01','시작 화면'],['ob-signup','O-02','가입 (이메일 · 비밀번호 · 약관)'],['ob-role','O-03','세입자 / 임대인 선택'],['ob-info','O-04','개인정보 · 휴대폰 인증'],['ob-place','O-05','집 · 임대 장소 등록']];
+function sid(){const l=[...OB,...SCREENS[S.role]].find(s=>s[0]===S.screen);return l?l[1]:''}
+function go(screen,opts={}){ if(opts.item) curItem=opts.item; if(opts.repair) curRepair=opts.repair;
+  if(opts.tab){S.stack=[]} else S.stack.push(S.screen);
+  S.screen=screen; render(); document.getElementById('body').scrollTop=0; if(isMobile()) window.scrollTo(0,0) }
+const isMobile=()=>matchMedia('(max-width:760px)').matches;
+function back(){obErr={};S.screen=S.stack.pop()||TABS[S.role][0][0]; render()}
+function toast(t){const el=document.getElementById('toast');el.textContent=personalize(t);el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2200)}
+function setRole(r){S.role=r;S.stack=[];S.screen=TABS[r][0][0];render()}
+
+const progress=()=>{const d=S.items.filter(i=>i.done).length;return {d,n:S.items.length,p:Math.round(d/S.items.length*100)}};
+const openReqs=()=>S.items.reduce((a,i)=>a+i.req.filter(r=>!r.done).length,0);
+const other=()=>S.role==='tenant'?'landlord':'tenant';
+const stars=n=>'★'.repeat(Math.floor(n))+'☆'.repeat(5-Math.floor(n));
+
+/* ---------- 렌더 ---------- */
+function topbar(title,{backBtn=true,right=''}={}){
+  return `${backBtn&&S.stack.length?'<button class="back" data-act="back" aria-label="뒤로">‹</button>':''}<h2>${title}</h2>${right}<span class="sid">${sid()}</span>`
+}
+const V={};
+
+V.home=()=>{const pr=progress();const both=S.sign.tenant&&S.sign.landlord;const ag=S.schedule.agreed;const me=S.role,ot=other();
+ const signTxt=both?'두 사람 모두 서명 완료':S.sign[ot]?`${NAMES[ot]} 님 서명 완료 · 내 서명 남음`:S.sign[me]?`내 서명 완료 · ${NAMES[ot]} 님 서명 대기`:'두 사람 모두 서명 전';
+ const recDone=pr.d===pr.n&&!openReqs();
+ const R=S.reviews.landlord;
+ return {top:`<span class="logo">잇다 홈</span><h2></h2><span class="sid">${sid()}</span>`,body:`
+ ${S.adOpen?`<div class="ad"><span class="tag">광고</span><div class="grow" style="flex:1"><b>입주청소 첫 이용 15% 할인</b><br><span class="sub">잇다 홈 기록을 보고 견적을 바로 받아요 · 깔끔하우스</span></div><button class="x" data-act="closeAd" aria-label="광고 닫기">×</button></div>`:''}
+ <div class="card">
+  <div class="row"><div class="grow"><div class="eyebrow">내 집</div><p class="h">사창동 우왕빌 302호</p><p class="sub">임대인 박정호 · 2026.11.02 – 2028.11.01</p></div><span class="chip ${both?'ok':'baton'}">${both?'기록 확정':!ag?'날짜 정하기':'기록 중'}</span></div>
+ </div>
+ <div class="card">
+  <div class="eyebrow">진행 상황</div>
+  <div class="steps">
+   ${[['날짜 합의',ag?`${ag}에 함께 기록`:'함께 기록할 날짜를 정해요',ag?'done':'now'],['함께 기록',`체크리스트 ${pr.d}/${pr.n} 완료${openReqs()?` · 보충 요청 ${openReqs()}건`:''}`,recDone?'done':(ag?'now':'')],['함께 서명',signTxt,both?'done':(recDone?'now':'')],['거주 중','수리 요청은 앱에서 주고받아요',both?'now':''],['퇴실 비교','입주 기록과 나란히 비교','']].map(([t,d,c],i)=>`<div class="step ${c}"><div class="b">${c==='done'?'✓':i+1}</div><div><div class="t">${t}</div><div class="d">${d}</div></div></div>`).join('')}
+  </div>
+  ${both?`<button class="btn" data-go="repairNew">고장·하자 신고하기</button>`:!ag?`<button class="btn" data-go="schedule">함께 기록할 날짜 정하기</button>`:recDone?`<button class="btn" data-go="sign">함께 서명하기</button>`:`<button class="btn" data-go="record">${pr.d?`입주 기록 이어서 하기 · ${pr.p}%`:'입주 기록 시작하기'}</button>`}
+ </div>
+ <div class="card">
+  <div class="row"><div class="grow"><div class="eyebrow">내 임대인</div><p class="h" style="font-size:15px">박정호 ${R.n?`<span class="stars">${stars(R.avg)}</span> ${R.avg.toFixed(1)}`:''}</p><p class="sub">${R.n?`세입자 ${R.n}명의 평점 · 코멘트 ${R.list.length}개`:'아직 받은 평점이 없어요'}</p></div><button class="btn small ghost" data-go="profile">평가</button></div>
+ </div>
+ <div class="card flat">
+  <div class="row"><div class="grow"><div class="eyebrow">이전 세입자 기록</div><p class="h" style="font-size:15px">${S.inherited?'이전 세입자 기록을 이어받았어요':'이전 세입자 기록을 이어받을 수 있어요'}</p><p class="sub">2024–2026 거주 · 퇴실 사진 ${S.items.length}장 · 양측 서명</p></div><button class="btn small ghost" data-go="prev">보기</button></div>
+ </div>
+ ${both?'<button class="btn ghost" data-go="compare">2년 뒤 퇴실 비교 화면 미리 보기</button>':''}`}};
+
+V.schedule=()=>{const sc=S.schedule;
+ return {top:topbar('함께 기록할 날짜'),body:`
+ <p class="sub">입주 기록은 두 사람이 같은 날, 같은 자리에서 함께 찍어요. 그래야 사진 각도와 밝기가 같아서 퇴실 때 비교가 쉬워요.</p>
+ ${sc.agreed?`<div class="card" style="border-color:var(--accent)"><div class="eyebrow">확정된 날짜</div><p class="h">${sc.agreed}</p><p class="sub">${NAMES[other()]} 님과 이 날 함께 기록해요.</p></div>`:`
+ <div class="card"><div class="eyebrow">날짜 제안하기</div>
+  <div class="two"><input type="date" id="sDate" aria-label="날짜"><input type="time" id="sTime" value="14:00" aria-label="시간" style="width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px;font:inherit;font-size:14px"></div>
+  <button class="btn" data-act="propose">${NAMES[other()]} 님에게 제안하기</button>
+ </div>`}
+ ${sc.proposed.length?`<div class="card"><div class="eyebrow">제안한 날짜</div>
+  ${sc.proposed.map(d=>`<div class="row"><div class="grow">${d}</div>${d===sc.agreed?`<span class="chip ok">${NAMES[other()]} 님 수락</span>`:'<span class="chip">대기</span>'}</div>`).join('')}
+ </div>`:''}
+ <div class="card flat"><div class="eyebrow">함께 기록할 때 자동으로 남는 것</div>
+  <dl class="kv"><dt>촬영 시각</dt><dd>사진마다 자동 기록</dd><dt>위치</dt><dd>집 주소 반경 50m 안인지 확인</dd><dt>참여자</dt><dd>두 사람 모두 앱에 접속한 상태로 촬영</dd></dl>
+ </div>
+ ${sc.agreed?'<button class="btn" data-go="record">입주 기록 시작하기</button>':''}`}};
+
+V.record=()=>{const pr=progress();let lastRoom='';
+ return {top:topbar(S.role==='landlord'?'302호 입주 기록':'입주 기록'),body:`
+ <div class="card">
+  <div class="row"><div class="grow"><p class="h">${pr.d} / ${pr.n} 항목 완료</p><p class="sub">${S.schedule.agreed?`${S.schedule.agreed} · ${NAMES.tenant}, ${NAMES.landlord} 함께`:'함께 기록할 날짜를 먼저 정해주세요'}</p></div><b style="color:var(--accent)">${pr.p}%</b></div>
+  <div class="bar"><i style="width:${pr.p}%"></i></div>
+  ${openReqs()?`<div class="req">보충 요청 ${openReqs()}건이 남아 있어요</div>`:''}
+ </div>
+ <div class="list">
+ ${S.items.map(i=>{const h=i.room!==lastRoom?`<div class="room">${i.room}</div>`:'';lastRoom=i.room;const r=i.req.filter(x=>!x.done).length;
+   return h+`<button class="li" data-go="item" data-item="${i.id}">${phHTML(i.photos[0],'thumb')}<div class="grow" style="flex:1;min-width:0"><div style="font-weight:600">${i.name}</div><div class="sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${i.note||'아직 기록하지 않았어요'}</div></div>${r?'<span class="chip warn">보충 요청</span>':i.inherited&&i.photos.length===1?'<span class="chip baton">이어받음</span>':i.done?'<span class="chip ok">완료</span>':'<span class="chip">미완료</span>'}</button>`}).join('')}
+ </div>
+ <button class="btn" data-go="sign" ${pr.d<pr.n?'':''}>함께 서명하러 가기</button>
+ ${pr.d<pr.n?'<p class="sub" style="text-align:center">모든 항목을 기록해야 서명할 수 있어요</p>':''}`}};
+
+V.item=()=>{const i=S.items.find(x=>x.id===curItem);const L=S.role==='landlord';
+ return {top:topbar(`${i.room} · ${i.name}`),body:`
+ ${i.photos.length?`<div style="display:grid;grid-template-columns:${i.photos.length>1?'1fr 1fr':'1fr'};gap:8px">${i.photos.map(p=>phHTML(p,i.photos.length>1?'mid':'big')).join('')}</div>`:phHTML(null,'big')}
+ <div class="stamp">📍 사창동 우왕빌 302호 · 2026.11.02 14:${10+S.items.indexOf(i)*3} · 촬영 ${i.by?NAMES[i.by]:'-'} · 함께 확인</div>
+ <button class="btn" data-act="demoPhoto">사진 찍기</button>
+ <label class="btn ghost" style="text-align:center;display:block">＋ 앨범에서 사진 추가<input type="file" accept="image/*" id="upl" hidden></label>
+ <div class="card"><div class="eyebrow">글 기록 · 사진에 안 담기는 부분</div>
+  <textarea id="noteTa" placeholder="예: 문 하단 긁힘 2cm, 손잡이 흔들림 없음">${i.note}</textarea>
+  <button class="btn small" data-act="saveNote" style="align-self:flex-end">기록 저장</button>
+ </div>
+ <div class="card"><div class="eyebrow">보충 요청</div>
+  ${i.req.length?i.req.map((r,k)=>`<div class="req ${r.done?'done':''}"><div><b>${NAMES[r.from]}</b> · ${r.text}</div>${r.done?'<div>✓ 사진 보충 완료</div>':(!L?`<button class="btn small warn" data-act="fulfill" data-k="${k}" style="align-self:flex-start">사진 찍어서 보충하기</button>`:'<div class="sub">상대방이 보충하면 알려드려요</div>')}</div>`).join(''):'<p class="sub">아직 보충 요청이 없어요.</p>'}
+  ${L?`<input type="text" id="reqIn" placeholder="예: 창가 쪽을 가까이서 한 장 더 부탁해요"><button class="btn small" data-act="sendReq" style="align-self:flex-end">보충 요청 보내기</button>`:''}
+ </div>`}};
+
+V.sign=()=>{const me=S.role, ot=other();const pr=progress();const changed=S.items.filter(i=>i.note).length;
+ return {top:topbar('함께 서명'),body:`
+ <div class="card flat"><p class="h" style="font-size:15px">이 기록이 입주 기준점이 돼요</p>
+  <dl class="kv"><dt>항목</dt><dd>${pr.d}/${pr.n} 완료</dd><dt>사진</dt><dd>${S.items.reduce((a,i)=>a+i.photos.length,0)}장</dd><dt>글 기록</dt><dd>${changed}개 항목</dd><dt>보충 요청</dt><dd>${openReqs()?openReqs()+'건 남음':'모두 해결'}</dd></dl>
+  <p class="sub">서명 후에는 기록을 고칠 수 없고, 추가만 할 수 있어요. 두 사람의 서명과 시각이 함께 남아요.</p>
+ </div>
+ <div class="sigbox">
+  ${['tenant','landlord'].map(r=>`<div class="s ${S.sign[r]?'ok':''}"><div class="eyebrow">${r==='tenant'?'세입자':'임대인'}</div><b>${NAMES[r]}</b><div class="sub">${S.sign[r]?'✓ 서명 완료':'서명 전'}</div></div>`).join('')}
+ </div>
+ ${S.sign[me]?`<div class="note">내 서명은 끝났어요. ${S.sign[ot]?'기록이 확정됐어요.':NAMES[ot]+' 님의 서명을 기다리고 있어요.'}</div>`:`
+ <div class="eyebrow">아래에 손가락으로 서명하세요</div>
+ <canvas class="sigpad" id="sig" aria-label="서명 칸"></canvas>
+ <div class="row"><button class="btn ghost" data-act="clearSig">지우기</button><button class="btn" data-act="doSign" ${pr.d<pr.n||openReqs()?'disabled':''}>서명하고 확정</button></div>
+ ${pr.d<pr.n||openReqs()?'<p class="sub">미완료 항목과 보충 요청을 먼저 끝내야 해요.</p><button class="btn ghost small" data-act="fillAll">남은 항목 한 번에 채우기</button>':''}`}
+ ${S.sign.tenant&&S.sign.landlord?'<div class="card"><p class="h">기록 확정 · ITDA-2026-302-A1</p><p class="sub">PDF로 내보내기 · 퇴실 때 이 기록과 비교돼요</p></div>':''}`}};
+
+V.repairs=()=>({top:topbar('수리 요청',{right:S.role==='tenant'?'<button class="btn small" data-go="repairNew">＋ 신고</button>':''}),body:`
+ ${S.role==='landlord'?'<div class="row" style="flex-wrap:wrap;gap:6px"><span class="chip">전체 호실</span>'+S.units.map((u,k)=>`<span class="chip ${k?'':'ok'}">${u.no}호</span>`).join('')+'</div>':''}
+ ${S.repairs.length?'':`<div class="card flat" style="text-align:center"><p class="h" style="font-size:15px">아직 수리 요청이 없어요</p><p class="sub">${S.role==='tenant'?'고장이나 하자가 생기면 사진과 함께 신고해주세요.':'세입자가 신고하면 여기에 보여요.'}</p></div>`}
+ ${S.repairs.map(r=>`<button class="card" style="text-align:left" data-go="repair" data-repair="${r.id}"><div class="row">${phHTML(r.photo,'thumb')}<div class="grow"><b>${r.title}</b><div class="sub">${S.role==='landlord'?(r.unit||'302')+'호 · ':''}${r.cat} · ${r.when} 접수</div></div><span class="chip ${r.status==='수리 완료'?'ok':r.status==='접수'?'warn':'baton'}">${r.status}</span></div>${r.schedule&&r.status!=='수리 완료'?`<div class="sub">🗓 ${r.schedule} · ${r.vendor}</div>`:''}</button>`).join('')}
+ <div class="note">수리 요청과 처리 내용이 기록으로 남아서, 퇴실 때 "원래 있던 하자인지"를 따로 다툴 필요가 없어요.</div>`});
+
+V.repairNew=()=>{const n=S.newRepair;return {top:topbar('고장·하자 신고'),body:`
+ <div class="card"><div class="eyebrow">어디가 문제인가요</div>
+  <div class="radio">${['수전','보일러','전기','창호','누수','가전','기타'].map(c=>`<button data-act="cat" data-v="${c}" aria-pressed="${n.cat===c}">${c}</button>`).join('')}</div>
+ </div>
+ <div class="card"><div class="eyebrow">사진</div>${phHTML({tone:'metal',label:'주방 수전 물 샘'},'big')}<p class="sub">카메라로 바로 찍어 올릴 수 있어요.</p></div>
+ <div class="card"><div class="eyebrow">증상</div><textarea id="rDesc" placeholder="언제부터, 어떤 증상인지 적어주세요">${n.desc||'주방 수전 아래쪽에서 물이 한 방울씩 떨어져요. 3일 전부터.'}</textarea></div>
+ <div class="card"><div class="eyebrow">원하는 처리</div>
+  <div class="radio">${['임대인에게 수리 요청','제가 직접 고칠게요'].map(c=>`<button data-act="dec" data-v="${c}" aria-pressed="${n.decision===c}">${c}</button>`).join('')}</div>
+ </div>
+ <button class="btn" data-act="submitRepair">신고 보내기</button>`}};
+
+V.repair=()=>{const r=S.repairs.find(x=>x.id===curRepair);const L=S.role==='landlord';
+ return {top:topbar(r.title),body:`
+ ${phHTML(r.photo,'big')}
+ <div class="row"><span class="chip ${r.status==='수리 완료'?'ok':r.status==='접수'?'warn':'baton'}">${r.status}</span><span class="sub">${L&&r.unit?r.unit+'호 '+(r.tenant||'')+' · ':''}${r.cat} · ${r.when} 접수</span></div>
+ <p style="margin:0">${r.desc}</p>
+ <div class="card flat"><dl class="kv"><dt>처리</dt><dd>${r.decision||'결정 전'}</dd><dt>일정</dt><dd>${r.schedule||'-'}</dd><dt>담당</dt><dd>${r.vendor||'-'}</dd></dl></div>
+ ${L&&r.status==='접수'?`<div class="card"><div class="eyebrow">처리 결정</div>
+   <div class="radio">${['임대인 부담 수리','세입자 부담'].map(c=>`<button data-act="ldec" data-v="${c}" aria-pressed="${r.decision===c}">${c}</button>`).join('')}</div>
+   <input type="date" id="rDate" value="2026-11-03"><button class="btn" data-act="confirmRepair">결정하고 일정 보내기</button></div>`:''}
+ <div class="card"><div class="eyebrow">처리 기록</div>
+  <div class="chat">${r.log.map(l=>`<div class="msg ${l.who===S.role?'me':''}"><div class="who">${l.name||NAMES[l.who]} · ${l.t}</div>${l.text}</div>`).join('')}</div>
+ </div>
+ ${r.status==='일정 확정'&&!L?'<button class="btn" data-act="repairDone">수리 완료 확인</button>':''}`}};
+
+V.chat=()=>({top:topbar(S.role==='tenant'?'박정호 (임대인)':'김서연 · 302호'),body:`<div class="chat" id="chatList">
+ ${S.chat.length?'':`<div class="msg sys">${NAMES[other()]} 님과의 대화가 여기에 쌓여요.<br>날짜 제안, 보충 요청, 수리 요청도 함께 보여요.</div>`}
+ ${S.chat.map(m=>m.sys?`<div class="msg sys">${m.text}</div>`:m.type==='req'?`<div class="msg card-msg ${m.from===S.role?'me':''}" style="${m.from===S.role?'background:var(--accent-soft);color:var(--ink)':''}"><div class="who">${NAMES[m.from]}</div><div class="chip warn" style="margin-bottom:6px">사진 보충 요청</div><div>${m.text}</div><button class="btn small ghost" style="margin-top:8px" data-go="item" data-item="${m.item}">해당 항목 열기</button></div>`:m.type==='repair'?`<div class="msg card-msg"><div class="who">${NAMES[m.from]}</div><div class="chip baton" style="margin-bottom:6px">수리 요청</div><div>${m.text}</div><button class="btn small ghost" style="margin-top:8px" data-go="repair" data-repair="${m.repair}">요청 열기</button></div>`:`<div class="msg ${m.from===S.role?'me':''}"><div class="who">${NAMES[m.from]}</div>${m.text}</div>`).join('')}
+ </div>`,composer:`<div class="composer"><input type="text" id="chatIn" placeholder="메시지 보내기"><button class="btn small" data-act="sendChat">보내기</button></div>`});
+
+V.compare=()=>{const ch=S.items.filter(i=>!i.out.same);
+ return {top:topbar('퇴실 비교'),body:`
+ <div class="card flat"><p class="h" style="font-size:15px">2028.10.30 퇴실 기록</p><p class="sub">입주 때 함께 찍은 자리에서 같은 구도로 다시 찍었어요. 바뀐 항목만 합의하면 정산이 끝나요.</p>
+  <div class="row" style="gap:6px;flex-wrap:wrap"><span class="chip">전체 ${S.items.length}</span><span class="chip warn">변화 ${ch.length}</span><span class="chip ok">합의 ${ch.filter(i=>i.out.agreed).length}</span></div></div>
+ ${ch.map(i=>`<div class="card"><div class="row"><b class="grow">${i.room} · ${i.name}</b>${i.out.agreed?'<span class="chip ok">합의 완료</span>':'<span class="chip warn">확인 필요</span>'}</div>
+  <div class="cmp"><div><div class="lab">입주 2026.11.02</div>${phHTML(i.photos[0],'mid')}</div><div><div class="lab">퇴실 2028.10.30</div>${phHTML(i.out.photo,'mid')}</div></div>
+  <div class="sub"><b>입주 때</b> ${i.note}</div><div class="sub"><b>퇴실 때</b> ${i.out.note}</div>
+  ${i.out.agreed?'':`<div class="row"><button class="btn small ghost" data-act="disagree" data-id="${i.id}" style="flex:1">대화로 조정</button><button class="btn small" data-act="agree" data-id="${i.id}" style="flex:1">이 내용에 합의</button></div>`}
+ </div>`).join('')}
+ <details class="card"><summary style="cursor:pointer;font-weight:600">변화 없는 항목 ${S.items.length-ch.length}개</summary>${S.items.filter(i=>i.out.same).map(i=>`<div class="sub">✓ ${i.room} · ${i.name}</div>`).join('')}</details>
+ ${ch.every(i=>i.out.agreed)?'<div class="card"><p class="h">모든 항목 합의 완료</p><p class="sub">퇴실 기록이 확정됐어요. 보증금 정산을 진행하세요.</p><button class="btn" data-go="review">상대방 평가 남기기</button></div>':''}`}};
+
+V.profile=()=>{const who=S.role==='tenant'?'landlord':'tenant';const R=S.reviews[who];
+ return {top:topbar(S.role==='tenant'?'임대인 평가':'세입자 평가'),body:`
+ <div class="card" style="align-items:center;text-align:center">
+  <div style="width:64px;height:64px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-weight:700;font-size:22px;color:var(--accent)">${NAMES[who][0]}</div>
+  <p class="h">${NAMES[who]} · ${who==='landlord'?'임대인':'세입자'}</p>
+  ${R.n?`<div><span class="stars" style="font-size:20px">${stars(R.avg)}</span> <b>${R.avg.toFixed(1)}</b> <span class="sub">(${R.n}명 평가)</span></div>`:'<div class="sub">아직 받은 평점이 없어요</div>'}
+ </div>
+ <div class="note">평가는 잇다 홈으로 함께 기록하고 계약을 마친 상대만 남길 수 있어요. 별점과 코멘트는 모든 사용자에게 공개돼요.</div>
+ ${R.list.length?`<div class="eyebrow">코멘트 ${R.list.length}개</div>`+R.list.map(r=>`<div class="card"><div class="row"><span class="stars">${stars(r.s)}</span><span class="sub grow">${esc(r.who)}</span></div>${r.text?`<p style="margin:0">${esc(r.text)}</p>`:''}</div>`).join(''):''}
+ <button class="btn ghost" data-go="review">별점과 코멘트 남기기 (퇴실 후 열려요)</button>`}};
+
+V.review=()=>{const m=S.myReview;const who=other();
+ return {top:topbar(`${NAMES[who]} 님 평가하기`),body:m.sent?`<div class="card" style="text-align:center"><p class="h">평가를 남겼어요</p><p class="sub">별점과 코멘트가 ${NAMES[who]} 님의 평가 화면에 공개됐어요.</p><button class="btn ghost" data-go="profile">평가 화면에서 보기</button></div>`:`
+ <p class="sub">계약 기간 동안 어땠나요? 남긴 별점과 코멘트는 모든 사용자에게 공개돼요.</p>
+ <div class="card"><div class="eyebrow">전체 평점</div><div class="starpick">${[1,2,3,4,5].map(n=>`<button class="${n<=m.s?'on':''}" data-act="star" data-v="${n}" aria-label="${n}점">★</button>`).join('')}</div></div>
+ <div class="card"><div class="eyebrow">코멘트</div><textarea id="revTa" placeholder="다음 사람에게 도움이 될 이야기를 남겨주세요">${esc(m.text)}</textarea></div>
+ <button class="btn" data-act="sendReview" ${m.s?'':'disabled'}>평가 남기기</button>`}};
+
+V.prev=()=>{let last='';
+ return {top:topbar('이전 세입자 사진'),body:`
+ <div class="card flat"><p class="h" style="font-size:15px">우왕빌 302호 · 이전 세입자 퇴실 기록</p><p class="sub">2026.10.28 퇴실 · 이전 세입자와 박정호 님 양측 서명</p>
+  <p class="sub">입주 전에 집 상태를 미리 확인하고, 함께 기록할 때 참고하세요. 이 사진은 보기만 할 수 있어요.</p></div>
+ ${S.items.map(i=>{const h=i.room!==last?`<div class="room">${i.room}</div>`:'';last=i.room;const p={...i.out.photo,label:i.name};
+   return h+`<div class="card"><div class="row" style="align-items:flex-start">${phHTML(p,'thumb')}<div class="grow"><b>${i.name}</b><div class="sub">${i.out.note||'이상 없음'}</div><div class="stamp">2026.10.28 · 양측 확인</div></div></div></div>`}).join('')}
+ ${S.inherited?'<div class="note">이 기록을 입주 기록으로 이어받았어요. 함께 기록하는 날 달라진 항목만 새로 찍으면 돼요.</div><button class="btn" data-go="record">내 입주 기록으로 가기</button>':'<div class="note">이어받으면 이 퇴실 사진과 메모가 내 입주 기록의 출발점이 돼요. 함께 기록하는 날 달라진 곳만 새로 찍고 서명하면 돼요.</div><button class="btn" data-act="inherit">이 기록을 입주 기록으로 이어받기</button>'}`}};
+
+function u0(){const pr=progress(),both=S.sign.tenant&&S.sign.landlord;
+ if(!S.schedule.agreed)return {state:'날짜 정하기',tone:'baton',sub:'세입자와 함께 기록할 날짜를 정해요'};
+ if(both)return {state:'거주 중',tone:'ok',sub:'입주 기록 확정'};
+ return {state:pr.d===pr.n?'서명 대기':'기록 중',tone:'baton',sub:`입주 기록 ${pr.d}/${pr.n}${openReqs()?` · 보충 요청 ${openReqs()}건`:''}`}}
+function todo(){const t=[];if(!S.schedule.agreed)t.push('기록 날짜 정하기');else if(!(S.sign.tenant&&S.sign.landlord))t.push(progress().d===progress().n?'서명하기':'입주 기록 이어가기');if(openReqs())t.push(`보충 요청 ${openReqs()}건`);if(S.repairs.some(r=>r.status==='접수'))t.push('수리 요청 확인');return t}
+V.units=()=>({top:`<span class="logo">잇다 홈</span><h2 style="font-size:15px;color:var(--muted);font-weight:500">임대인 박정호</h2><span class="sid">${sid()}</span>`,body:`
+ <div class="card flat"><div class="row"><div class="grow"><div class="eyebrow">우왕빌 · 4세대</div><p class="h">${todo().length?`확인할 일 ${todo().length}건`:'확인할 일이 없어요'}</p><p class="sub">${todo().join(' · ')||'새 소식이 오면 알려드려요'}</p></div></div></div>
+ ${S.units.map((u,k)=>{const locked=S.plan==='free'&&k>0;return `<button class="unit ${locked?'locked':''}" data-act="unit" data-k="${k}"><div class="no">${u.no}</div><div style="min-width:0"><b>${u.who}</b><div class="sub">${locked?'🔒 2개 호실부터 구독':k===0?u0().sub:u.sub}</div></div><span class="chip ${k===0?u0().tone:u.tone}">${k===0?u0().state:u.state}</span></button>`}).join('')}
+ ${S.plan==='free'&&S.units.length>1?'<div class="card" style="border-color:var(--baton)"><p class="h" style="font-size:15px">1개 호실은 무료로 관리 중이에요</p><p class="sub">나머지 '+(S.units.length-1)+'개 호실을 함께 관리하려면 구독하세요.</p><button class="btn" data-go="plans">요금제 보기</button></div>':''}`});
+
+V.plans=()=>({top:topbar('요금제'),body:`
+ <p class="sub">세입자는 언제나 무료예요. 입주·퇴실 기록과 서명은 임대인도 무료로 쓸 수 있어요.</p>
+ ${[['free','무료','0원','1개 호실',['입주·퇴실 함께 기록과 서명','수리 요청 소통','상호 평가']],['multi','다세대','월 9,900원','10개 호실까지',['여러 호실 한 화면 관리']],['pro','다세대 프로','월 29,000원','무제한 호실',['호실별 기록 PDF 일괄 내보내기']]].map(([k,n,p,s,f])=>`<button class="plan ${S.plan===k?'pick':''}" data-act="plan" data-v="${k}" style="text-align:left;background:var(--surface)"><div class="row"><b class="grow">${n}</b>${S.plan===k?'<span class="chip ok">사용 중</span>':''}</div><div class="price">${p}</div><div class="sub">${s}</div><ul>${f.map(x=>`<li>${x}</li>`).join('')}</ul></button>`).join('')}
+`});
+
+/* ---------- 가입 · 등록 ---------- */
+const STORE='itda-home-account';
+let P=null; // 가입을 마친 계정
+const D={email:'',pw:'',pw2:'',t1:false,t2:false,t3:false,role:'',name:'',birth:'',phone:'',codeSent:false,code:'',verified:false,
+  addr:'',building:'',unit:'',start:'',end:'',deposit:'',rent:'',lname:'',lphone:'',
+  laddr:'',lbuilding:'',units:[],unitIn:'',unitSt:'입주 예정',unitName:'',unitEnd:'',tname:''};
+function loadAcct(){try{const v=localStorage.getItem(STORE);return v?JSON.parse(v):null}catch(e){return null}}
+function saveAcct(a){try{localStorage.setItem(STORE,JSON.stringify(a))}catch(e){}}
+function clearAcct(){try{localStorage.removeItem(STORE)}catch(e){}}
+const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtD=d=>d?d.replace(/-/g,'.'):'';
+function unitNo(){if(!P)return '302';return (P.role==='tenant'?P.unit:(S.units[0]?S.units[0].no:'302')).replace(/호$/,'')}
+function bldg(){return P?(P.role==='tenant'?P.building:P.lbuilding):'우왕빌'}
+function personalize(h){if(!P)return h;
+  h=h.replace(/사창동 우왕빌/g,bldg()).replace(/우왕빌/g,bldg()).replace(/302/g,unitNo());
+  if(P.role==='tenant'&&P.start&&P.end) h=h.replace('2026.11.02 – 2028.11.01',`${fmtD(P.start)} – ${fmtD(P.end)}`);
+  if(P.role==='landlord') h=h.replace('· 4세대',`· ${S.units.length}세대`);
+  return h.replace(/김서연/g,NAMES.tenant).replace(/박정호/g,NAMES.landlord)}
+function freshStart(){
+  S.items.forEach(i=>{i.photos=[];i.note='';i.by=null;i.done=false;i.req=[];i.inherited=false});S.inherited=false;
+  S.sign={tenant:false,landlord:false};S.chat=[];S.repairs=[];S.schedule={proposed:[],agreed:null};
+  S.reviews={landlord:{avg:4.5,n:8,list:[
+   {who:'세입자 · 2024–2026 거주',s:5,text:'수리 요청하면 다음 날 바로 답을 주셨어요. 퇴실 때도 기록 보고 금방 정산됐어요.'},
+   {who:'세입자 · 2023–2025 거주',s:4,text:'보증금은 계약 종료일에 바로 돌려받았어요. 주말에는 답이 조금 늦어요.'},
+   {who:'세입자 · 2022–2024 거주',s:4,text:'입주 날 같이 꼼꼼히 사진 찍어주셔서 안심됐어요.'}]},tenant:{avg:5,n:1,list:[{who:'이전 임대인 · 2024–2026 계약',s:5,text:'집을 입주 때보다 깨끗하게 쓰고 나가셨어요. 하자가 생기면 바로 사진과 함께 알려줘서 수리가 빨랐어요. 월세도 한 번도 밀린 적 없어요.'}]}};S.myReview={s:0,text:'',sent:false};
+  S.newRepair={cat:'수전',desc:'',decision:null};S.plan='free';S.adOpen=true}
+function applyAcct(a){P=a;freshStart();S.role=a.role;S.stack=[];S.screen=TABS[a.role][0][0];
+  NAMES.tenant=a.role==='tenant'?a.name:(a.tname||'세입자');NAMES.landlord=a.role==='landlord'?a.name:(a.lname||'임대인');
+  if(a.role==='landlord'){
+   // 시연용: 여러 호실을 관리 중인 임대인 (다세대 구독 사용 중)
+   const others=[{who:'오지훈',state:'거주 중',tone:'ok',sub:'입주 기록 확정 · 계약 만료 2027.03'},{who:'최민규',state:'거주 중',tone:'ok',sub:'입주 기록 확정 · 계약 만료 2027.08'},{who:'이수아',state:'거주 중',tone:'ok',sub:'입주 기록 확정 · 계약 만료 2028.02'},{who:'공실',state:'공실',tone:'',sub:'이전 퇴실 기록이 다음 세입자에게 이어져요'}];
+   const reg=(a.units||[]).map(u=>typeof u==='string'?{no:u,status:'입주 예정',name:''}:u);
+   const toUnit=u=>u.status==='공실'?{no:u.no,who:'공실',state:'공실',tone:'',sub:'이전 퇴실 기록이 다음 세입자에게 이어져요'}
+     :u.status==='거주 중'?{no:u.no,who:u.name||'세입자',state:'거주 중',tone:'ok',sub:`입주 기록 확정${u.end?' · 계약 만료 '+fmtD(u.end):''}`}
+     :{no:u.no,who:u.name||'새 세입자',state:'입주 예정',tone:'baton',sub:'함께 기록할 날짜를 정해요'};
+   let list;
+   if(reg.length>=2){const fi=Math.max(0,reg.findIndex(u=>u.status==='입주 예정'));list=[reg[fi],...reg.filter((_,k)=>k!==fi)];
+     S.units=list.map((u,k)=>k===0?{no:u.no,who:u.name||a.tname||'김학생'}:toUnit(u))}
+   else{const main=reg[0]||{no:'302',name:''};const extra=['101','201','401','402'].filter(n=>n!==main.no);
+     S.units=[{no:main.no,who:main.name||a.tname||'김학생'},...extra.slice(0,3).map((no,k)=>({no,...others[k]}))]}
+   S.plan='multi';
+   // 시연용: 다른 호실에서 받은 수리 요청
+   const u1=S.units[1],u2=S.units[2];
+   if(u1&&u1.who!=='공실')S.repairs.push({id:'r101',unit:u1.no,tenant:u1.who,title:'보일러 온수 온도가 안 올라가요',cat:'보일러',when:'10월 24일',status:'수리 완료',schedule:'10.27',vendor:'임대인 지정 기사',photo:{tone:'white',label:'보일러 에러 E-03'},desc:'온수를 틀면 미지근한 물만 나오고 에러 코드 E-03이 떠요.',decision:'임대인 부담 수리',log:[{who:'tenant',name:u1.who,t:'10.24 21:10',text:'사진과 함께 접수했어요. 희망: 임대인에게 수리 요청'},{who:'landlord',t:'10.25 09:02',text:'확인했어요. 노후 부품이라 제가 부담할게요.'},{who:'landlord',t:'10.25 09:30',text:'임대인 부담 수리로 결정했어요. 10.27에 기사님이 방문해요.'},{who:'tenant',name:u1.who,t:'10.27 15:40',text:'수리 잘 끝났어요. 감사합니다!'}]});
+   if(u2&&u2.who!=='공실')S.repairs.unshift({id:'r201',unit:u2.no,tenant:u2.who,title:'욕실 배수구에서 물이 잘 안 빠져요',cat:'누수',when:'오늘',status:'접수',schedule:'',vendor:'',photo:{tone:'tile',label:'욕실 배수구',mark:[45,55,14]},desc:'샤워하면 물이 바닥에 고여요. 이틀 전부터 심해졌어요.',decision:null,log:[{who:'tenant',name:u2.who,t:'오늘 08:12',text:'사진과 함께 접수했어요. 희망: 임대인에게 수리 요청'}]});
+   }}
+
+function obSteps(n){return `<div class="ob-steps">${[1,2,3,4].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</div>`}
+function obTop(title,n){return `${S.stack.length?'<button class="back" data-act="back" aria-label="뒤로">‹</button>':''}<h2>${title}</h2><span class="sid">${sid()}</span>`}
+const inp=(f,type,ph,extra='')=>`<input type="${type}" id="f-${f}" data-f="${f}" placeholder="${ph}" value="${esc(D[f])}" ${extra}>`;
+let obErr={};
+const err=f=>obErr[f]?`<div class="err">${obErr[f]}</div>`:'';
+
+V['ob-welcome']=()=>({top:`<h2></h2><span class="sid">${sid()}</span>`,body:`
+ <div class="ob-hero"><div class="big">잇다 홈</div><p class="h" style="font-size:19px">세입자와 임대인이<br>같은 기록을 함께 남겨요</p><p class="sub">입주 날 함께 찍고, 함께 서명하고, 퇴실 때 나란히 비교해요. 수리 요청도 앱에서 주고받아요.</p></div>
+ <div class="ob-art" aria-hidden="true"><i style="left:12%;width:22%;height:46%"></i><i style="left:39%;width:24%;height:72%"></i><i style="left:68%;width:20%;height:56%"></i></div>
+ <div style="flex:1"></div>
+ <button class="btn" data-act="obGo" data-v="ob-signup">시작하기</button>
+ <button class="btn ghost" data-act="login">이미 계정이 있어요</button>`});
+
+V['ob-signup']=()=>({top:obTop('가입하기'),body:`
+ ${obSteps(1)}
+ <p class="h">계정을 만들어주세요</p>
+ <div class="field"><label for="f-email">이메일</label>${inp('email','email','name@example.com','autocomplete="email"')}${err('email')}</div>
+ <div class="field"><label for="f-pw">비밀번호</label>${inp('pw','password','8자 이상','autocomplete="new-password"')}${err('pw')}</div>
+ <div class="field"><label for="f-pw2">비밀번호 확인</label>${inp('pw2','password','한 번 더 입력','autocomplete="new-password"')}${err('pw2')}</div>
+ <div class="card flat" style="gap:8px">
+  <label class="check"><input type="checkbox" id="f-tall" data-act="allTerms" ${D.t1&&D.t2&&D.t3?'checked':''}><b>전체 동의</b></label>
+  <label class="check"><input type="checkbox" id="f-t1" data-f="t1" ${D.t1?'checked':''}>[필수] 서비스 이용약관</label>
+  <label class="check"><input type="checkbox" id="f-t2" data-f="t2" ${D.t2?'checked':''}>[필수] 개인정보 수집 · 이용</label>
+  <label class="check"><input type="checkbox" id="f-t3" data-f="t3" ${D.t3?'checked':''}>[선택] 이벤트 · 혜택 알림</label>
+  ${err('terms')}
+ </div>
+ <button class="btn" data-act="obSignup">다음</button>`});
+
+const ROLEICON={tenant:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg>',landlord:ICON.units};
+V['ob-role']=()=>({top:obTop('어떻게 쓰시나요?'),body:`
+ ${obSteps(2)}
+ <p class="h">세입자인가요, 임대인인가요?</p>
+ <p class="sub">고른 역할에 맞는 화면으로 시작해요.</p>
+ ${[['tenant','세입자','지금 살고 있는 집을 등록하고, 입주 기록과 수리 요청을 남겨요.'],['landlord','임대인','임대 중인 건물과 호실을 등록하고, 여러 세대를 한곳에서 관리해요.']].map(([k,n,d])=>`<button class="rolecard" data-act="pickRole" data-v="${k}" aria-pressed="${D.role===k}"><div class="ic">${ROLEICON[k]}</div><div><div class="h">${n}</div><div class="sub">${d}</div></div></button>`).join('')}
+ ${err('role')}
+ <div style="flex:1"></div>
+ <button class="btn" data-act="obRole">다음</button>`});
+
+V['ob-info']=()=>({top:obTop('개인정보'),body:`
+ ${obSteps(3)}
+ <p class="h">본인 정보를 입력해주세요</p>
+ <p class="sub">함께 서명할 때 상대방에게 이름이 보여요.</p>
+ <div class="field"><label for="f-name">이름</label>${inp('name','text','','autocomplete="name"')}${err('name')}</div>
+ <div class="field"><label for="f-birth">생년월일</label>${inp('birth','date','')}${err('birth')}</div>
+ <div class="field"><label for="f-phone">휴대폰 번호</label><div class="inline">${inp('phone','tel','010-0000-0000','autocomplete="tel"')}<button class="btn small ghost" data-act="sendCode">${D.codeSent?'다시 받기':'인증번호 받기'}</button></div>${err('phone')}</div>
+ ${D.codeSent?`<div class="field"><label for="f-code">인증번호</label><div class="inline">${inp('code','text','6자리 숫자','inputmode="numeric" maxlength="6"')}<button class="btn small" data-act="verify">${D.verified?'✓ 인증됨':'확인'}</button></div>${err('code')}</div>`:''}
+ <button class="btn" data-act="obInfo">다음</button>`});
+
+V['ob-place']=()=>{const T=D.role==='tenant';
+ return {top:obTop(T?'사는 집 등록':'임대 장소 등록'),body:`
+ ${obSteps(4)}
+ <p class="h">${T?'지금 살고 있는 집을 등록해주세요':'임대 중인 건물을 등록해주세요'}</p>
+ ${T?`
+ <div class="field"><label for="f-addr">주소</label>${inp('addr','text','도로명 또는 지번 주소')}${err('addr')}</div>
+ <div class="two"><div class="field"><label for="f-building">건물명</label>${inp('building','text','')}${err('building')}</div><div class="field"><label for="f-unit">호수</label>${inp('unit','text','')}${err('unit')}</div></div>
+ <div class="two"><div class="field"><label for="f-start">계약 시작</label>${inp('start','date','')}</div><div class="field"><label for="f-end">계약 종료</label>${inp('end','date','')}</div></div>${err('dates')}
+ <div class="two"><div class="field"><label for="f-deposit">보증금 (만원)</label>${inp('deposit','number','','inputmode="numeric"')}</div><div class="field"><label for="f-rent">월세 (만원)</label>${inp('rent','number','','inputmode="numeric"')}</div></div>
+`:`
+ <div class="field"><label for="f-laddr">주소</label>${inp('laddr','text','도로명 또는 지번 주소')}${err('laddr')}</div>
+ <div class="field"><label for="f-lbuilding">건물명</label>${inp('lbuilding','text','')}${err('lbuilding')}</div>
+ <div class="card"><div class="eyebrow">관리 중인 호실 등록</div>
+  <div class="two"><div class="field"><label for="f-unitIn">호수</label>${inp('unitIn','text','')}</div><div class="field"><label for="f-unitEnd">계약 만료 (선택)</label>${inp('unitEnd','date','')}</div></div>
+  <div class="field"><label>현재 상태</label><div class="radio">${['입주 예정','거주 중','공실'].map(v=>`<button data-act="unitSt" data-v="${v}" aria-pressed="${D.unitSt===v}">${v}</button>`).join('')}</div></div>
+  ${D.unitSt==='공실'?'':`<div class="field"><label for="f-unitName">세입자 이름 (선택)</label>${inp('unitName','text','')}</div>`}
+  <button class="btn ghost" data-act="addUnit">＋ 호실 추가</button>${err('units')}
+  ${D.units.length?`<div class="list">${D.units.map((u,k)=>`<div class="li" style="cursor:default"><div class="no" style="width:44px;height:44px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-weight:700">${esc(u.no)}</div><div class="grow" style="flex:1;min-width:0"><b>${esc(u.no)}호</b><div class="sub">${u.status}${u.name?' · '+esc(u.name):''}${u.end?' · 만료 '+fmtD(u.end):''}</div></div><button class="btn small ghost" data-act="delUnit" data-k="${k}" aria-label="${esc(u.no)}호 삭제">삭제</button></div>`).join('')}</div>`:'<p class="sub">아직 등록한 호실이 없어요.</p>'}
+  <div class="hint">1개 호실은 무료예요. 2개 호실부터는 다세대 구독으로 함께 관리할 수 있어요.</div>
+ </div>`}
+ <button class="btn" data-act="obDone">가입 완료하고 시작하기</button>`}};
+
+function collect(){document.querySelectorAll('[data-f]').forEach(el=>{D[el.dataset.f]=el.type==='checkbox'?el.checked:el.value.trim()})}
+function obGo(sc){obErr={};S.stack.push(S.screen);S.screen=sc;render()}
+function obAction(a,t){
+ switch(a){
+  case 'obGo':obGo(t.dataset.v);return true;
+  case 'login':{const a2=loadAcct();if(a2){applyAcct(a2);render();toast(`${a2.name} 님, 다시 오셨네요`)}else toast('저장된 계정이 없어요. 시작하기로 가입해주세요');return true}
+  case 'allTerms':{const v=t.checked;D.t1=D.t2=D.t3=v;render();return true}
+  case 'obSignup':obErr={};obGo('ob-role');return true;
+  case 'pickRole':D.role=t.dataset.v;render();return true;
+  case 'obRole':if(!D.role)D.role='tenant';obGo('ob-info');return true;
+  case 'sendCode':obErr={};if(D.phone.replace(/\D/g,'').length<10){obErr.phone='휴대폰 번호를 확인해주세요';render();return true}D.codeSent=true;D.verified=false;render();toast('인증번호를 보냈어요');return true;
+  case 'verify':obErr={};D.verified=true;toast('휴대폰 인증이 끝났어요');render();return true;
+  case 'obInfo':obErr={};obGo('ob-place');return true;
+  case 'unitSt':D.unitSt=t.dataset.v;render();return true;
+  case 'addUnit':{obErr={};const u=D.unitIn.replace(/호$/,'').trim();if(!u){obErr.units='호수를 입력해주세요'}else if(D.units.some(x=>x.no===u)){obErr.units='이미 추가한 호실이에요'}else{D.units.push({no:u,status:D.unitSt,name:D.unitSt==='공실'?'':D.unitName,end:D.unitEnd});D.unitIn='';D.unitName='';D.unitEnd=''}render();const el=document.getElementById('f-unitIn');if(el)el.focus();return true}
+  case 'delUnit':D.units.splice(+t.dataset.k,1);render();return true;
+  case 'obDone':{obErr={};
+   if(D.unitIn&&!D.units.some(x=>x.no===D.unitIn.replace(/호$/,''))){D.units.push({no:D.unitIn.replace(/호$/,''),status:D.unitSt,name:D.unitSt==='공실'?'':D.unitName,end:D.unitEnd});D.unitIn=''}
+   const a={email:D.email,role:D.role,name:D.name,birth:D.birth,phone:D.phone};
+   if(D.role==='tenant')Object.assign(a,{addr:D.addr,building:D.building,unit:D.unit.replace(/호$/,''),start:D.start,end:D.end,deposit:D.deposit,rent:D.rent,lname:D.lname,lphone:D.lphone});
+   else Object.assign(a,{laddr:D.laddr,lbuilding:D.lbuilding,units:D.units.map(u=>({...u}))});
+   a.name=a.name||(D.role==='tenant'?'김학생':'나주인');
+   if(D.role==='tenant'){a.building=a.building||'우왕빌';a.unit=a.unit||'302';a.lname=a.lname||'나주인'}else{a.lbuilding=a.lbuilding||'우왕빌';const first=a.units.find(u=>u.status==='입주 예정');a.tname=(first&&first.name)||'김학생'}
+   saveAcct(a);applyAcct(a);render();toast('가입을 마쳤어요. 반가워요');return true}
+  case 'logout':clearAcct();location.reload();return true;
+ }
+ return false;
+}
+
+/* ---------- 메인 렌더 ---------- */
+function render(){
+  const v=V[S.screen]();const ob=S.screen.startsWith('ob-');
+  document.getElementById('top').innerHTML=ob?v.top:personalize(v.top);
+  document.getElementById('body').innerHTML=ob?v.body:personalize(v.body);
+  document.getElementById('composer').innerHTML=v.composer||'';
+  document.getElementById('tabs').hidden=ob;
+  /*removed*/
+  const tabs=TABS[S.role];const tabRoot=S.stack[0]||S.screen;
+  const badge={record:openReqs(),repairs:S.repairs.filter(r=>r.status==='접수').length,chat:0,units:todo().length};
+  document.getElementById('tabs').style.gridTemplateColumns=`repeat(${tabs.length},1fr)`;
+  document.getElementById('tabs').innerHTML=tabs.map(([k,l,ic])=>`<button data-tab="${k}" ${tabRoot===k?'aria-current="page"':''}>${ICON[ic]}${l}${badge[k]?`<span class="dot">${badge[k]}</span>`:''}</button>`).join('');
+  document.querySelectorAll('#roleSeg button,#roleSeg2 button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.role===S.role));
+  /*removed*/
+  if(S.screen==='sign') setupSig();
+  if(S.screen==='chat'){const b=document.getElementById('body');b.scrollTop=b.scrollHeight;if(isMobile())window.scrollTo(0,document.documentElement.scrollHeight)}
+  const up=document.getElementById('upl'); if(up) up.onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const i=S.items.find(x=>x.id===curItem);i.photos.push({src:rd.result,label:'방금 올린 사진'});i.done=true;i.by=i.by||S.role;render();toast('사진을 추가했어요. 촬영 시각과 위치가 함께 저장돼요.')};rd.readAsDataURL(f)};
+}
+
+let sigDrawn=false;
+function setupSig(){const c=document.getElementById('sig');if(!c)return;const r=c.getBoundingClientRect();c.width=r.width*2;c.height=r.height*2;const x=c.getContext('2d');x.scale(2,2);x.lineWidth=2.2;x.lineCap='round';x.strokeStyle=getComputedStyle(document.body).color;sigDrawn=false;let d=false;
+ const p=e=>{const b=c.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]};
+ c.onpointerdown=e=>{d=true;c.setPointerCapture(e.pointerId);x.beginPath();x.moveTo(...p(e))};
+ c.onpointermove=e=>{if(!d)return;x.lineTo(...p(e));x.stroke();sigDrawn=true};
+ c.onpointerup=()=>d=false;}
+
+/* ---------- 동작 ---------- */
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button,[data-go]');if(!t)return;
+ if(S.screen.startsWith('ob-'))collect();
+ if(t.dataset.act&&obAction(t.dataset.act,t))return;
+ if(t.dataset.jump){const k=t.dataset.jump;if(k.startsWith('ob-')){const i=OB.findIndex(o=>o[0]===k);S.stack=OB.slice(0,i).map(o=>o[0]);obErr={}}else S.stack=[TABS[S.role][0][0]].filter(x=>x!==k);S.screen=k;render();return}
+ if(t.dataset.tab){go(t.dataset.tab,{tab:true});return}
+ if(t.dataset.go){go(t.dataset.go,{item:t.dataset.item,repair:t.dataset.repair});return}
+ const a=t.dataset.act;if(!a)return;
+ const item=()=>S.items.find(x=>x.id===curItem);
+ const R=()=>S.repairs.find(x=>x.id===curRepair);
+ switch(a){
+  case 'back':back();break;
+  case 'closeAd':S.adOpen=false;render();break;
+  case 'saveNote':{const i=item();i.note=document.getElementById('noteTa').value.trim();if(i.note){i.done=true;i.by=i.by||S.role}render();toast('글 기록을 저장했어요');break}
+  case 'sendReq':{const v=document.getElementById('reqIn').value.trim();if(!v){toast('요청 내용을 적어주세요');break}const i=item();i.req.push({from:'landlord',text:v,done:false});S.chat.push({from:'landlord',type:'req',item:i.id,text:v});S.sign.landlord=false;render();toast('김서연 님에게 보충 요청을 보냈어요');break}
+  case 'fulfill':{const i=item();const r=i.req[+t.dataset.k];r.done=true;i.photos.push({tone:i.photos[0]?.tone||'wall',label:'보충 사진 · 근접'});i.done=true;S.chat.push({from:'tenant',text:`"${i.name}" 보충 사진 올렸어요.`});render();toast('보충 사진을 올렸어요. 박정호 님에게 알렸어요.');break}
+  case 'fillAll':S.items.forEach(i=>{if(!i.done){i.done=true;i.by='tenant';i.photos.push({tone:'white',label:i.name});i.note=i.note||'이상 없음'}i.req.forEach(r=>r.done=true)});render();break;
+  case 'clearSig':setupSig();break;
+  case 'doSign':{if(!sigDrawn){toast('서명 칸에 먼저 서명해주세요');break}const me=S.role,ot=other();S.sign[me]=true;S.chat.push({sys:true,text:`${NAMES[me]} 님이 입주 기록에 서명했어요`});
+   if(!S.sign[ot])setTimeout(()=>{S.sign[ot]=true;S.chat.push({sys:true,text:`${NAMES[ot]} 님이 입주 기록에 서명했어요`});if(S.screen==='sign'||S.screen==='home'||S.screen==='units')render();toast(`${NAMES[ot]} 님도 서명했어요`)},1500);
+   render();toast('서명했어요');break}
+  case 'propose':{const d=document.getElementById('sDate').value,tm=document.getElementById('sTime').value||'14:00';
+   const dt=d?new Date(d+'T00:00'):new Date(Date.now()+3*864e5);const h=+tm.split(':')[0],mi=tm.split(':')[1];
+   const str=`${dt.getMonth()+1}월 ${dt.getDate()}일 (${'일월화수목금토'[dt.getDay()]}) ${h<12?'오전':'오후'} ${h%12||12}시${mi!=='00'?' '+mi+'분':''}`;
+   S.schedule.proposed.push(str);S.chat.push({from:S.role,text:`${str}에 함께 기록하면 어떨까요?`});render();toast('날짜를 제안했어요');
+   setTimeout(()=>{S.schedule.agreed=str;S.chat.push({sys:true,text:`${str}, 함께 기록하기로 정했어요`});if(S.screen==='schedule'||S.screen==='home')render();toast(`${NAMES[other()]} 님이 날짜를 수락했어요`)},1500);break}
+  case 'inherit':{S.items.forEach(i=>{if(!i.photos.length){i.photos.push({...i.out.photo,label:`${i.name} · 이전 퇴실`});i.note=i.note||(i.out.note?`[이어받음] ${i.out.note}`:'[이어받음] 이전 퇴실 때 이상 없음');i.done=true;i.inherited=true}});S.inherited=true;
+   S.chat.push({sys:true,text:'이전 세입자의 퇴실 기록을 입주 기록으로 이어받았어요'});render();toast(`기록 ${S.items.length}개 항목을 이어받았어요`);break}
+  case 'demoPhoto':{const i=S.items.find(x=>x.id===curItem);const tone={현관:'metal',거실:'wall',주방:'metal',욕실:'tile',방:'glass'}[i.room]||'wall';
+   i.photos.push({tone,label:`${i.name}${i.photos.length?' · '+(i.photos.length+1):''}`});i.done=true;i.by=i.by||S.role;render();toast('사진을 남겼어요. 촬영 시각과 위치가 함께 저장돼요.');break}
+  case 'cat':S.newRepair.cat=t.dataset.v;S.newRepair.desc=document.getElementById('rDesc').value;render();break;
+  case 'dec':S.newRepair.decision=t.dataset.v;S.newRepair.desc=document.getElementById('rDesc').value;render();break;
+  case 'submitRepair':{const n=S.newRepair;const desc=document.getElementById('rDesc').value.trim();const id='r'+(S.repairs.length+1);
+    S.repairs.unshift({id,title:`${n.cat} 고장 신고`,cat:n.cat,when:'오늘',status:'접수',schedule:'',vendor:n.decision==='제휴 수리업체 견적 받기'?'견적 받는 중':'',photo:{tone:'metal',label:'주방 수전 물 샘'},desc,decision:n.decision==='제휴 수리업체 견적 받기'?'제휴 업체 견적 받기':null,log:[{who:'tenant',t:'방금',text:`사진과 함께 접수했어요. 희망: ${n.decision||'선택 안 함'}`}]});
+    S.chat.push({from:'tenant',type:'repair',repair:id,text:`${n.cat} · ${desc.slice(0,30)}…`});curRepair=id;S.stack=['repairs'];S.screen='repair';render();toast('박정호 님에게 수리 요청을 보냈어요');break}
+  case 'ldec':R().decision=t.dataset.v;render();break;
+  case 'confirmRepair':{const r=R();if(!r.decision){toast('처리 방법을 먼저 골라주세요');break}const d=document.getElementById('rDate').value;r.status='일정 확정';r.schedule=d.replace(/-/g,'.');r.vendor=r.decision==='세입자 부담'?'세입자 직접':'임대인 지정 기사';r.log.push({who:'landlord',t:'방금',text:`${r.decision}로 결정했어요. ${r.schedule}에 방문해요.`});render();toast(`${r.tenant||'김서연'} 님에게 일정을 보냈어요`);break}
+  case 'repairDone':{const r=R();r.status='수리 완료';r.log.push({who:'tenant',t:'방금',text:'수리 잘 끝났어요. 감사합니다!'});render();toast('수리 완료로 기록했어요.');break}
+  case 'sendChat':{const v=document.getElementById('chatIn').value.trim();if(!v)break;S.chat.push({from:S.role,text:v});render();break}
+  case 'agree':{const i=S.items.find(x=>x.id===t.dataset.id);i.out.agreed=true;render();toast('합의했어요. 상대방에게도 표시돼요.');break}
+  case 'disagree':S.chat.push({from:S.role,text:`퇴실 비교 "${S.items.find(x=>x.id===t.dataset.id).name}" 항목 이야기 나눠요.`});go('chat');break;
+  case 'star':{const ta=document.getElementById('revTa');if(ta)S.myReview.text=ta.value;S.myReview.s=+t.dataset.v;render();break}
+  case 'tag':t.setAttribute('aria-pressed',t.getAttribute('aria-pressed')!=='true');break;
+  case 'sendReview':{const m=S.myReview;const ta=document.getElementById('revTa');m.text=ta?ta.value.trim():'';const R=S.reviews[other()];
+   R.list.unshift({who:`${S.role==='tenant'?'세입자':'임대인'} ${NAMES[S.role]} · 방금`,s:m.s,text:m.text});R.avg=Math.round((R.avg*R.n+m.s)/(R.n+1)*10)/10;R.n++;m.sent=true;render();toast('별점과 코멘트를 남겼어요');break}
+  case 'unit':{const k=+t.dataset.k;if(S.plan==='free'&&k>0){go('plans');toast('2개 호실부터는 구독이 필요해요');break}if(k===0){go(S.schedule.agreed?'record':'schedule')}else{const u=S.units[k];toast(u.who==='공실'?`${u.no}호는 공실이에요. 세입자를 초대하면 함께 기록할 수 있어요`:`${u.no}호 · ${u.who} 님 · ${u.sub}`)}break}
+  case 'plan':S.plan=t.dataset.v;render();toast(S.plan==='free'?'무료 요금제로 바꿨어요':'구독을 시작했어요');break;
+ }
+});
+document.addEventListener('change',e=>{const t=e.target;if(!S.screen.startsWith('ob-'))return;collect();if(t.dataset.act==='allTerms'){obAction('allTerms',t)}else if(t.type==='checkbox'){render()}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='f-unitIn'){e.preventDefault();collect();obAction('addUnit',e.target)}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='chatIn'){document.querySelector('[data-act="sendChat"]').click()}});
+S.screen='ob-welcome'; // 시연용: 열 때마다 가입 화면부터
+render();
+</script>
+
+</body>
+</html>
